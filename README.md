@@ -1,7 +1,7 @@
 # 📚 Mihon → AniList Sync
 > Automatically sync your reading progress from **Mihon** (formerly Tachiyomi) with **AniList** – supports `.tachibk` backup and `.csv` export.
 
-Access the website here ➡️
+Access the website here ➡️  [Mihon Sync](https://byhenriquesilva.github.io/from-mihon-to-anilist/).
 
  ## ✨ Features
 
