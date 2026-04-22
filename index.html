@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mihon → AniList Sync</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/protobufjs@7.2.6/dist/protobuf.min.js"></script>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="page">
+
+  <!-- Nav -->
+  <nav>
+    <a class="nav-logo" href="#">
+      <div class="logo-icon">&#x3299;</div>
+      MIHON SYNC
+    </a>
+
+    <!-- Nav right group -->
+    <div class="nav-right-group">
+
+    <!-- Console Toggle Button -->
+    <button class="console-nav-btn" id="consoleNavBtn" title="Abrir console">
+      <svg class="console-nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="4 17 10 11 4 5"/>
+        <line x1="12" y1="19" x2="20" y2="19"/>
+      </svg>
+      <span>Console</span>
+    </button>
+
+    <!-- Language Switcher -->
+    <div class="lang-switcher" id="langSwitcher">
+      <button class="lang-btn" id="langBtn" title="Selecionar idioma">
+        <span class="lang-btn-icon">&#35486;</span>
+        <span class="lang-btn-label" id="langBtnLabel">PT</span>
+        <span class="lang-btn-arrow">&#9662;</span>
+      </button>
+      <div class="lang-dropdown" id="langDropdown">
+        <div class="lang-dropdown-header">Idioma / Language</div>
+        <button class="lang-option active" data-lang="pt">
+          <span class="lang-flag">&#127463;&#127479;</span>
+          <span class="lang-name">Português (BR)</span>
+          <span class="lang-check">✓</span>
+        </button>
+        <button class="lang-option" data-lang="en">
+          <span class="lang-flag">&#127482;&#127480;</span>
+          <span class="lang-name">English</span>
+          <span class="lang-check">✓</span>
+        </button>
+        <button class="lang-option" data-lang="es">
+          <span class="lang-flag">&#127466;&#127480;</span>
+          <span class="lang-name">Español</span>
+          <span class="lang-check">✓</span>
+        </button>
+        <button class="lang-option" data-lang="ja">
+          <span class="lang-flag">&#127471;&#127477;</span>
+          <span class="lang-name">日本語</span>
+          <span class="lang-check">✓</span>
+        </button>
+      </div>
+    </div>
+    </div><!-- /.nav-right-group -->
+  </nav>
+
+  <!-- Console Modal Overlay -->
+  <div class="console-overlay" id="consoleOverlay">
+    <div class="console-modal" id="consoleModal">
+      <div class="console-modal-header">
+        <div class="console-title">
+          <div class="console-dot" id="consoleDot"></div>
+          <span data-i18n="console_title">Log de progresso</span>
+        </div>
+        <div class="console-modal-actions">
+          <button class="btn-clear" id="clearConsoleBtn" data-i18n="btn_clear">Limpar</button>
+          <button class="console-close-btn" id="consoleCloseBtn" title="Fechar console">✕</button>
+        </div>
+      </div>
+      <div id="console">
+        <div class="log-line info">
+          <span class="log-time">[--:--:--]</span>
+          <span class="log-msg" data-i18n="console_waiting">Aguardando início...</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="columns-wrapper">
+
+    <!-- Left: hero + info cards -->
+    <div class="leftDiv">
+      <section class="hero">
+        <div class="hero-chip" data-i18n="chip">Sincronização de Biblioteca</div>
+        <h1 data-i18n="h1">Sua leitura no<br><span>Mihon → AniList</span></h1>
+        <p data-i18n="hero_p">Importe seu backup ou lista exportada do Mihon e sincronize automaticamente todas as suas obras com o AniList.</p>
+      </section>
+
+      <div class="info-grid">
+
+        <div class="info-card">
+          <div class="info-card-icon icon-purple">🔑</div>
+          <div class="info-card-body">
+            <h3 data-i18n="card1_title">Como obter o Token do AniList</h3>
+            <p data-i18n="card1_p"></p>
+          </div>
+        </div>
+
+        <div class="info-card">
+          <div class="info-card-icon icon-blue">📦</div>
+          <div class="info-card-body">
+            <h3 data-i18n="card2_title">De onde exportar os arquivos?</h3>
+            <p data-i18n="card2_p"></p>
+          </div>
+        </div>
+
+        <div class="info-card">
+          <div class="info-card-icon icon-orange">⚠️</div>
+          <div class="info-card-body">
+            <h3 data-i18n="card3_title">Atenção: nomes das obras</h3>
+            <p data-i18n="card3_p"></p>
+          </div>
+        </div>
+
+        <div class="info-card">
+          <div class="info-card-icon icon-orange">💡</div>
+          <div class="info-card-body">
+            <h3 data-i18n="card4_title">Como acompanhar o progresso?</h3>
+            <p data-i18n="card4_p"></p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Right: form + console -->
+    <div class="rightDiv">
+
+      <div class="main-wrapper">
+        <div class="card">
+          <div class="card-header">
+            <h2 data-i18n="form_title">Iniciar Sincronização</h2>
+            <p data-i18n="form_sub">Preencha os campos abaixo e clique em sincronizar</p>
+          </div>
+          <div class="card-body">
+
+            <div class="field">
+              <label for="token" data-i18n="label_token">Token de Acesso AniList</label>
+              <div class="input-wrap">
+                <span class="input-icon">🔑</span>
+                <input type="password" id="token"
+                  data-i18n-placeholder="placeholder_token"
+                  placeholder="Cole seu token aqui"
+                  autocomplete="off">
+              </div>
+            </div>
+
+            <div class="field">
+              <label data-i18n="label_file">Arquivo de Biblioteca</label>
+
+              <div class="file-compare">
+                <div class="file-type-card ftc-pro">
+                  <div class="ftc-header">
+                    <span data-i18n="ftc_backup">Backup</span>
+                    <span class="ftc-ext">.tachibk</span>
+                  </div>
+                  <ul>
+                    <li data-i18n="ftc_b1">Inclui último capítulo lido</li>
+                    <li data-i18n="ftc_b2">Bug de obras lidas no histórico incluídas</li>
+                    <li data-i18n="ftc_b3">Status Lendo/Planejado automático</li>
+                  </ul>
+                </div>
+                <div class="file-type-card ftc-neu">
+                  <div class="ftc-header">
+                    <span data-i18n="ftc_export">Exportação</span>
+                    <span class="ftc-ext">.csv</span>
+                  </div>
+                  <ul>
+                    <li data-i18n="ftc_e1">Mais precisão com a biblioteca</li>
+                    <li data-i18n="ftc_e2">Maior taxa de encontradas</li>
+                    <li data-i18n="ftc_e3">Sem progresso de capítulo</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="ftc-note">
+                <span>💡</span>
+                <span data-i18n="ftc_note">Recomendamos o <strong>.tachibk</strong> para ter o progresso dos capítulos. Use o <strong>.csv</strong> se muitas obras não forem encontradas.</span>
+              </div>
+
+              <div class="file-drop" id="fileDrop">
+                <input type="file" id="fileInput" accept=".tachibk,.csv">
+                <div class="file-drop-icon">📂</div>
+                <div class="file-drop-text" data-i18n="drop_text">Arraste o arquivo ou clique para selecionar</div>
+                <div class="file-drop-sub"  data-i18n="drop_sub">Suporta .tachibk e .csv</div>
+                <div class="file-selected-name" id="selectedName">
+                  <span>✅</span>
+                  <span id="selectedNameText"></span>
+                </div>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <button class="btn-sync" id="syncBtn">
+              <div class="spinner"></div>
+              <span class="btn-text" data-i18n="btn_sync">Sincronizar com AniList</span>
+            </button>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- console moved to floating modal -->
+
+    </div>
+  </div>
+
+  <footer>
+    <p data-i18n="footer">Feito com ❤️ para leitores de mangá &nbsp;·&nbsp; ⚠ Respeite os limites da API. Não utilize tokens de terceiros.</p>
+  </footer>
+
+</div>
+
+<script type="module">
+  import { applyLang, initLangSwitcher } from './js/i18n.js';
+  import { initFileDrop }                from './js/fileDrop.js';
+
+  applyLang('pt');
+  initLangSwitcher();
+  initFileDrop();
+</script>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
